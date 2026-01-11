@@ -1,4 +1,4 @@
-import { get } from "https";
+import { get } from "http";
 import { URL } from "url";
 import { StatusResponse } from "../types/api";
 import { PrusaLinkConfig } from "../types/config";
