@@ -71,15 +71,25 @@ interface StatusResponse {
 The service implements a state machine based on PrusaLink printer states:
 
 ```
-IDLE/BUSY/READY ────▶ PRINTING ────▶ FINISHED/STOPPED/ERROR
-       ▲                                        │
-       └────────────────────────────────────────┘
+Any State ────▶ PRINTING ────▶ Any Non-PRINTING State
 ```
+
+**Valid Printer States**:
+
+- `IDLE` - Printer is idle
+- `BUSY` - Printer is busy with non-print operations
+- `PRINTING` - Print job is active
+- `PAUSED` - Print job is paused
+- `FINISHED` - Print job completed successfully
+- `STOPPED` - Print job was stopped by user
+- `ERROR` - Print job failed with error
+- `ATTENTION` - Printer requires attention
+- `READY` - Printer is ready for new job
 
 **Transitions**:
 
-- **PRINTING start**: Initialize timelapse capture
-- **PRINTING end**: Stop capture and assemble video
+- **PRINTING start**: Initialize timelapse capture (any non-PRINTING → PRINTING)
+- **PRINTING end**: Stop capture and assemble video (PRINTING → any non-PRINTING)
 
 ### Error Handling
 

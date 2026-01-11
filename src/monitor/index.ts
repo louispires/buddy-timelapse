@@ -84,13 +84,8 @@ export class PrintMonitor {
       ) {
         await this.handlePrintStarted(currentJobId);
       }
-      // Print finished/stopped
-      else if (
-        previousState === "PRINTING" &&
-        (currentState === "FINISHED" ||
-          currentState === "STOPPED" ||
-          currentState === "ERROR")
-      ) {
+      // Print finished/stopped - any transition from PRINTING to non-PRINTING
+      else if (previousState === "PRINTING" && currentState !== "PRINTING") {
         await this.handlePrintFinished(currentJobId);
       }
 
