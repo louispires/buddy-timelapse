@@ -1,0 +1,19 @@
+{
+  "prusaLink": {
+    "host": "192.168.1.100",
+    "port": 80,
+    "username": "maker",
+    "password": "your-password-here"
+  },
+  "timelapse": {
+    "rtspUrl": "rtsp://192.168.1.100:554/live",
+    "captureInterval": 30,
+    "outputFramerate": 30,
+    "outputDirectory": "./timelapses",
+    "tempDirectory": "./temp"
+  },
+  "notification": {
+    "command": "echo 'Timelapse completed: {outputPath}'"
+  },
+  "pollInterval": 10
+}

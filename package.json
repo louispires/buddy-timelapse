@@ -1,0 +1,26 @@
+{
+  "name": "prusa-timelapse",
+  "version": "1.0.0",
+  "description": "PrusaLink API-based timelapse capture service",
+  "main": "dist/index.js",
+  "bin": {
+    "prusa-timelapse": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "prusa",
+    "timelapse",
+    "3d-printing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "typescript": "^5.9.3"
+  }
+}
