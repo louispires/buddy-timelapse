@@ -43,8 +43,7 @@ Edit `config.json` with your settings:
   "prusaLink": {
     "host": "192.168.1.100",
     "port": 80,
-    "username": "maker",
-    "password": "your-password-here"
+    "apiKey": "your-api-key-here"
   },
   "timelapse": {
     "rtspUrl": "rtsp://192.168.1.100:554/live",
@@ -66,8 +65,7 @@ Edit `config.json` with your settings:
 
 - `host`: IP address or hostname of your Prusa printer
 - `port`: PrusaLink web interface port (usually 80)
-- `username`: PrusaLink username (usually "maker")
-- `password`: PrusaLink password
+- `apiKey`: PrusaLink API key (obtain from printer web interface)
 
 #### Timelapse Settings
 

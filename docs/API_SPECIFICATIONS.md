@@ -12,9 +12,10 @@ The service integrates with PrusaLink API v1.0.0 to monitor printer status and d
 
 ### Authentication
 
-- **Type**: HTTP Basic Authentication (initial implementation)
-- **Note**: PrusaLink may also support Digest Authentication for enhanced security
-- **Credentials**: Configured via `prusaLink.username` and `prusaLink.password`
+- **Type**: API Key Authentication
+- **Header**: `X-Api-Key: <api_key>`
+- **Note**: Obtain API key from PrusaLink web interface
+- **Credentials**: Configured via `prusaLink.apiKey`
 
 ### Endpoints Used
 
@@ -84,7 +85,7 @@ IDLE/BUSY/READY ────▶ PRINTING ────▶ FINISHED/STOPPED/ERROR
 
 **HTTP Errors**:
 
-- `401 Unauthorized`: Authentication failure (may indicate digest auth required)
+- `401 Unauthorized`: Invalid or missing API key
 - `404 Not Found`: API endpoint not available
 - `500 Internal Server Error`: PrusaLink service issues
 

@@ -2,8 +2,7 @@
   "prusaLink": {
     "host": "192.168.1.100",
     "port": 80,
-    "username": "maker",
-    "password": "your-password-here"
+    "apiKey": "your-api-key-here"
   },
   "timelapse": {
     "rtspUrl": "rtsp://192.168.1.100:554/live",

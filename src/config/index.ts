@@ -28,11 +28,8 @@ function validateConfig(config: any): AppConfig {
   ) {
     throw new ConfigError("Invalid or missing prusaLink.port");
   }
-  if (!prusaLink.username || typeof prusaLink.username !== "string") {
-    throw new ConfigError("Invalid or missing prusaLink.username");
-  }
-  if (!prusaLink.password || typeof prusaLink.password !== "string") {
-    throw new ConfigError("Invalid or missing prusaLink.password");
+  if (!prusaLink.apiKey || typeof prusaLink.apiKey !== "string") {
+    throw new ConfigError("Invalid or missing prusaLink.apiKey");
   }
 
   // Validate timelapse section

@@ -1,8 +1,7 @@
 export interface PrusaLinkConfig {
   host: string;
   port: number;
-  username: string;
-  password: string;
+  apiKey: string;
 }
 
 export interface TimelapseConfig {

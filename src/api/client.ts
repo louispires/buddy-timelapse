@@ -27,17 +27,13 @@ export class PrusaLinkClient {
     const url = new URL("/api/v1/status", this.baseUrl);
 
     return new Promise((resolve, reject) => {
-      const auth = Buffer.from(
-        `${this.config.username}:${this.config.password}`
-      ).toString("base64");
-
       const options = {
         hostname: url.hostname,
         port: url.port,
         path: url.pathname + url.search,
         method: "GET",
         headers: {
-          Authorization: `Basic ${auth}`,
+          "X-Api-Key": this.config.apiKey,
           "User-Agent": "prusa-timelapse/1.0.0",
           Accept: "application/json",
         },
@@ -65,10 +61,9 @@ export class PrusaLinkClient {
               );
             }
           } else if (res.statusCode === 401) {
-            // If basic auth fails, the API might expect digest auth
             reject(
               new ApiError(
-                "Authentication failed. PrusaLink may require digest authentication.",
+                "Authentication failed. Check your API key in the configuration.",
                 res.statusCode,
                 data
               )
