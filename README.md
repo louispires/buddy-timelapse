@@ -72,8 +72,8 @@ Edit `config.json` with your settings:
 - `rtspUrl`: RTSP URL for camera stream
 - `captureInterval`: Seconds between captured frames (e.g., 30 = 1 frame every 30 seconds)
 - `outputFramerate`: FPS for the final video (e.g., 30)
-- `outputDirectory`: Directory to save completed timelapse videos
-- `tempDirectory`: Directory for temporary frame storage
+- `outputDirectory`: Directory to save completed timelapse videos (created automatically if needed)
+- `tempDirectory`: Directory for temporary frame storage (created automatically if needed)
 
 #### Notification Settings
 

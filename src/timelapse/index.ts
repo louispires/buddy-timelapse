@@ -1,6 +1,6 @@
 import { ChildProcess, spawn } from "child_process";
 import { mkdirSync, readdirSync, unlinkSync } from "fs";
-import { join, resolve } from "path";
+import { dirname, join, resolve } from "path";
 import { TimelapseConfig } from "../types/config";
 
 export class TimelapseError extends Error {
@@ -153,6 +153,15 @@ export async function assembleVideo(
 ): Promise<void> {
   const tempDir = resolve(config.tempDirectory);
   const inputPattern = join(tempDir, "img_%05d.jpg");
+
+  // Ensure output directory exists
+  try {
+    mkdirSync(dirname(outputPath), { recursive: true });
+  } catch (error) {
+    throw new TimelapseError(
+      `Failed to create output directory: ${(error as Error).message}`
+    );
+  }
 
   return new Promise((resolve, reject) => {
     // Check if we have any frames to assemble
