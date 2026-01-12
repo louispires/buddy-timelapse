@@ -17,6 +17,7 @@ export class PrintMonitor {
   private apiClient: PrusaLinkClient;
   private timelapseCapture: TimelapseCapture;
   private currentPrintId: number | null = null;
+  private currentPrintFilename: string | null = null;
   private isMonitoring = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
   private lastPrinterState: PrinterState | null = null;
@@ -127,7 +128,25 @@ export class PrintMonitor {
     }
 
     try {
-      await this.timelapseCapture.startCapture();
+      // Fetch full job details to get the filename
+      const job = await this.apiClient.getJob();
+      if (job && job.file && job.file.display_name) {
+        this.currentPrintFilename = job.file.display_name;
+        console.log(`Print file: ${this.currentPrintFilename}`);
+      } else {
+        console.log("No file information available for this job");
+      }
+
+      // Check if we can resume from existing frames
+      const canResume = this.timelapseCapture.canResume();
+      if (canResume) {
+        const frameInfo = this.timelapseCapture.getFrameInfo();
+        console.log(
+          `Resuming timelapse capture - ${frameInfo.count} frames already captured (last: ${frameInfo.lastFrame})`
+        );
+      }
+
+      await this.timelapseCapture.startCapture(true);
       console.log("Timelapse capture started");
 
       // Start watchdog if enabled
@@ -147,6 +166,7 @@ export class PrintMonitor {
 
     if (!this.timelapseCapture.isCurrentlyCapturing()) {
       console.log("No active timelapse capture to stop");
+      this.currentPrintFilename = null;
       return;
     }
 
@@ -166,6 +186,9 @@ export class PrintMonitor {
       console.error(
         `Error during timelapse completion: ${(error as Error).message}`
       );
+    } finally {
+      // Always clear filename after print finishes
+      this.currentPrintFilename = null;
     }
   }
 
@@ -186,8 +209,20 @@ export class PrintMonitor {
       .toISOString()
       .replace(/[:.]/g, "-")
       .slice(0, -5);
-    const jobSuffix = jobId ? `_job${jobId}` : "";
-    const filename = `timelapse_${timestamp}${jobSuffix}.mp4`;
+    
+    let filename: string;
+    
+    // If we have a print filename, use it (without extension)
+    if (this.currentPrintFilename) {
+      const printName = this.currentPrintFilename.replace(/\.[^/.]+$/, "");
+      const sanitizedName = printName.replace(/[<>:"/\\|?*]/g, "_");
+      filename = `timelapse_${sanitizedName}_${timestamp}.mp4`;
+    } else {
+      // Fallback to date/time only
+      const jobSuffix = jobId ? `_job${jobId}` : "";
+      filename = `timelapse_${timestamp}${jobSuffix}.mp4`;
+    }
+    
     return resolve(this.config.timelapse.outputDirectory, filename);
   }
 

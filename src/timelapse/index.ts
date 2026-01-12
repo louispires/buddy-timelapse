@@ -21,7 +21,7 @@ export class TimelapseCapture {
     this.tempDir = resolve(this.config.tempDirectory);
   }
 
-  async startCapture(): Promise<void> {
+  async startCapture(resumeIfPossible: boolean = true): Promise<void> {
     if (this.isCapturing) {
       throw new TimelapseError("Capture already in progress");
     }
@@ -35,8 +35,18 @@ export class TimelapseCapture {
       );
     }
 
-    // Clear any existing images in temp directory
-    this.clearTempDirectory();
+    // Check if we have existing frames to resume from
+    const existingFrameCount = this.getCapturedFrameCount();
+    const isResuming = resumeIfPossible && existingFrameCount > 0;
+
+    if (isResuming) {
+      console.log(
+        `Resuming timelapse capture with ${existingFrameCount} existing frames`
+      );
+    } else {
+      // Only clear if not resuming
+      this.clearTempDirectory();
+    }
 
     // Start ffmpeg capture process
     const outputPattern = join(this.tempDir, "img_%05d.jpg");
@@ -143,6 +153,32 @@ export class TimelapseCapture {
       ).length;
     } catch (error) {
       return 0;
+    }
+  }
+
+  canResume(): boolean {
+    return this.getCapturedFrameCount() > 0;
+  }
+
+  getFrameInfo(): { count: number; lastFrame: string | null } {
+    try {
+      const files = readdirSync(this.tempDir);
+      const jpgFiles = files.filter(
+        (file) => file.startsWith("img_") && file.endsWith(".jpg")
+      );
+
+      if (jpgFiles.length === 0) {
+        return { count: 0, lastFrame: null };
+      }
+
+      // Sort files to find the last frame
+      jpgFiles.sort();
+      return {
+        count: jpgFiles.length,
+        lastFrame: jpgFiles[jpgFiles.length - 1],
+      };
+    } catch (error) {
+      return { count: 0, lastFrame: null };
     }
   }
 }
