@@ -1,0 +1,18 @@
+services:
+  prusa-buddy-timelapse:
+    build: .
+    container_name: prusa-buddy-timelapse
+    restart: unless-stopped
+    volumes:
+      # Mount configuration file
+      - ./config:/app/config:ro
+      # Mount timelapse output directory
+      - ./timelapses:/app/timelapses
+      # Mount temp directory for frame storage
+      - ./temp:/app/temp
+    # Network mode host is recommended for RTSP camera access
+    # Use bridge mode if your camera is accessible via container networking
+    network_mode: host
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
