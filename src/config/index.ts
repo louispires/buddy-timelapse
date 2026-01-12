@@ -82,6 +82,15 @@ function validateConfig(config: any): AppConfig {
     throw new ConfigError("Invalid or missing pollInterval");
   }
 
+  // Validate watchdogTimeout
+  if (
+    config.watchdogTimeout === undefined ||
+    typeof config.watchdogTimeout !== "number" ||
+    config.watchdogTimeout < 0
+  ) {
+    throw new ConfigError("Invalid watchdogTimeout (must be >= 0)");
+  }
+
   return config as AppConfig;
 }
 

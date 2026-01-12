@@ -21,4 +21,5 @@ export interface AppConfig {
   timelapse: TimelapseConfig;
   notification: NotificationConfig;
   pollInterval: number; // seconds between API polls
+  watchdogTimeout: number; // seconds without seeing PRINTING state before auto-stopping capture (0 = disabled)
 }

@@ -20,6 +20,7 @@ export class PrintMonitor {
   private isMonitoring = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
   private lastPrinterState: PrinterState | null = null;
+  private watchdogExpiry: number | null = null; // timestamp when watchdog expires
 
   constructor(config: AppConfig) {
     this.config = config;
@@ -88,9 +89,19 @@ export class PrintMonitor {
       else if (previousState === "PRINTING" && currentState !== "PRINTING") {
         await this.handlePrintFinished(currentJobId);
       }
+      // If we're currently capturing and see PRINTING state, reset watchdog
+      else if (
+        this.timelapseCapture.isCurrentlyCapturing() &&
+        currentState === "PRINTING"
+      ) {
+        this.resetWatchdog();
+      }
 
       this.lastPrinterState = currentState;
       this.currentPrintId = currentJobId;
+
+      // Check watchdog after processing status
+      this.checkWatchdog();
     } catch (error) {
       if (error instanceof ApiError) {
         console.error(`API Error: ${error.message}`);
@@ -98,6 +109,9 @@ export class PrintMonitor {
         console.error(`Unexpected error: ${(error as Error).message}`);
       }
       // Continue monitoring despite errors
+
+      // Still check watchdog even on API errors
+      this.checkWatchdog();
     }
   }
 
@@ -115,6 +129,9 @@ export class PrintMonitor {
     try {
       await this.timelapseCapture.startCapture();
       console.log("Timelapse capture started");
+
+      // Start watchdog if enabled
+      this.startWatchdog(jobId);
     } catch (error) {
       console.error(
         `Failed to start timelapse capture: ${(error as Error).message}`
@@ -124,6 +141,9 @@ export class PrintMonitor {
 
   private async handlePrintFinished(jobId: number | null): Promise<void> {
     console.log(`Print finished (Job ID: ${jobId})`);
+
+    // Clear watchdog since printing finished normally
+    this.clearWatchdog();
 
     if (!this.timelapseCapture.isCurrentlyCapturing()) {
       console.log("No active timelapse capture to stop");
@@ -217,5 +237,59 @@ export class PrintMonitor {
 
   isCapturing(): boolean {
     return this.timelapseCapture.isCurrentlyCapturing();
+  }
+
+  private startWatchdog(jobId: number): void {
+    // Only start watchdog if enabled (> 0)
+    if (this.config.watchdogTimeout <= 0) {
+      return;
+    }
+
+    this.watchdogExpiry = Date.now() + this.config.watchdogTimeout * 1000;
+    console.log(
+      `Watchdog started: ${this.config.watchdogTimeout}s timeout for job ${jobId}`
+    );
+  }
+
+  private resetWatchdog(): void {
+    if (
+      this.config.watchdogTimeout <= 0 ||
+      !this.timelapseCapture.isCurrentlyCapturing()
+    ) {
+      return;
+    }
+
+    this.watchdogExpiry = Date.now() + this.config.watchdogTimeout * 1000;
+    console.log(`Watchdog reset: ${this.config.watchdogTimeout}s remaining`);
+  }
+
+  private checkWatchdog(): void {
+    if (
+      this.config.watchdogTimeout <= 0 ||
+      !this.timelapseCapture.isCurrentlyCapturing() ||
+      this.watchdogExpiry === null
+    ) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now >= this.watchdogExpiry) {
+      console.warn(
+        `Watchdog triggered: No PRINTING state seen for ${this.config.watchdogTimeout}s`
+      );
+      console.warn("Forcing timelapse completion due to watchdog");
+
+      // Use current print ID if available, otherwise null
+      this.handlePrintFinished(this.currentPrintId).catch((error) => {
+        console.error(
+          `Error during watchdog-triggered completion: ${error.message}`
+        );
+      });
+    }
+  }
+
+  private clearWatchdog(): void {
+    this.watchdogExpiry = null;
+    console.log("Watchdog cleared");
   }
 }

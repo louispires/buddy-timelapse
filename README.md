@@ -87,6 +87,7 @@ Edit `config.json` with your settings:
 #### Monitoring Settings
 
 - `pollInterval`: Seconds between API status checks (recommended: 5-15)
+- `watchdogTimeout`: Maximum seconds without seeing PRINTING state before auto-stopping capture (0 = disabled, default: 3600 = 1 hour)
 
 ## Usage
 

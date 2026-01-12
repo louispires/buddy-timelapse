@@ -14,5 +14,6 @@
   "notification": {
     "command": "echo 'Timelapse completed: {outputPath}'"
   },
-  "pollInterval": 10
+  "pollInterval": 10,
+  "watchdogTimeout": 3600
 }
