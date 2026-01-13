@@ -138,12 +138,25 @@ export class TimelapseCapture {
   }
 
   private clearTempDirectory(): void {
+    this.clearFrames();
+  }
+
+  /**
+   * Clears all captured frames from the temp directory.
+   * Call this after video assembly or when resuming state should be cleared.
+   */
+  clearFrames(): void {
     try {
       const files = readdirSync(this.tempDir);
+      let clearedCount = 0;
       for (const file of files) {
         if (file.startsWith("img_") && file.endsWith(".jpg")) {
           unlinkSync(join(this.tempDir, file));
+          clearedCount++;
         }
+      }
+      if (clearedCount > 0) {
+        console.log(`Cleared ${clearedCount} frames from temp directory`);
       }
     } catch (error) {
       // Directory might not exist or be empty, ignore
