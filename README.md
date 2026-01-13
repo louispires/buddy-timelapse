@@ -13,12 +13,14 @@ A TypeScript CLI service that automatically monitors PrusaLink API for print job
 
 ## Prerequisites
 
-- Node.js 16+
-- ffmpeg (installed and available in PATH)
+- Node.js 16+ **OR** Docker
+- ffmpeg (installed and available in PATH when running natively, included in Docker)
 - Access to PrusaLink API
 - RTSP camera stream from your 3D printer
 
 ## Installation
+
+### Native Installation
 
 1. Clone or download this repository
 2. Install dependencies:
@@ -31,12 +33,25 @@ A TypeScript CLI service that automatically monitors PrusaLink API for print job
    ```
 4. Copy the example configuration:
    ```bash
-   cp config.example.json config.json
+   cp config/config.example.json config/config.json
+   ```
+
+### Docker Installation
+
+1. Clone or download this repository
+2. Copy the example configuration:
+   ```bash
+   cp config/config.example.json config/config.json
+   ```
+3. Edit `config/config.json` with your settings
+4. Build and run with Docker Compose:
+   ```bash
+   docker compose up -d
    ```
 
 ## Configuration
 
-Edit `config.json` with your settings:
+Edit `config/config.json` with your settings:
 
 ```json
 {
@@ -91,21 +106,23 @@ Edit `config.json` with your settings:
 
 ## Usage
 
-### Start the Service
+### Native Usage
+
+#### Start the Service
 
 ```bash
 # Using npm script
-npm start config.json
+npm start config/config.json
 
 # Or directly with node
-node dist/index.js config.json
+node dist/index.js config/config.json
 
 # Or after installing globally
 npm link
-prusa-timelapse config.json
+prusa-timelapse config/config.json
 ```
 
-### Stop the Service
+#### Stop the Service
 
 Press `Ctrl+C` to gracefully stop the service. The service will:
 
@@ -113,6 +130,34 @@ Press `Ctrl+C` to gracefully stop the service. The service will:
 - Complete video assembly if frames were captured
 - Clean up temporary files
 - Send notifications
+
+### Docker Usage
+
+#### Start the Service
+
+```bash
+# Start in background
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop the service
+docker compose down
+```
+
+#### Docker Commands
+
+```bash
+# Rebuild after changes
+docker compose build
+
+# Restart service
+docker compose restart
+
+# View service status
+docker compose ps
+```
 
 ## How It Works
 
@@ -138,8 +183,9 @@ Press `Ctrl+C` to gracefully stop the service. The service will:
 │   └── types/
 │       ├── api.ts            # API response types
 │       └── config.ts         # Configuration types
+├── config/
+│   └── config.example.json   # Example configuration
 ├── dist/                     # Compiled JavaScript
-├── config.example.json       # Example configuration
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -157,7 +203,7 @@ ffmpeg -version
 
 ### Authentication Issues
 
-- Verify PrusaLink credentials in config.json
+- Verify PrusaLink credentials in config/config.json
 - Check that PrusaLink web interface is accessible
 - Some printers may use digest authentication instead of basic
 
